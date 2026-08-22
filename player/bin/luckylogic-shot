@@ -1,0 +1,26 @@
+#!/bin/bash
+# Save a PNG of what is actually on the TV right now.
+#
+#   sudo luckylogic-shot            -> /tmp/luckylogic-<timestamp>.png
+#   sudo luckylogic-shot /tmp/a.png -> that file
+#
+# Works by joining the running cage session rather than rendering the page
+# again, so what you get is exactly what the screen shows, dialogs and all.
+set -euo pipefail
+
+OUT="${1:-/tmp/luckylogic-$(date +%Y%m%d-%H%M%S).png}"
+RUNDIR=/run/luckylogic
+
+if [[ ! -r "$RUNDIR/wayland-display" ]]; then
+  echo "The kiosk is not running. Check: systemctl status luckylogic-kiosk" >&2
+  exit 1
+fi
+
+PLAYER_UID="$(id -u player)"
+sudo -u player \
+  XDG_RUNTIME_DIR="/run/user/$PLAYER_UID" \
+  WAYLAND_DISPLAY="$(cat "$RUNDIR/wayland-display")" \
+  grim "$OUT"
+
+chmod 644 "$OUT"
+echo "$OUT"

@@ -1,0 +1,16 @@
+# LuckyLogic Player configuration.
+#
+# Lives at /var/lib/luckylogic/player.conf on the installed machine, owned by
+# the player user so the kiosk can read it and the setup screen can write it.
+# Deliberately not on the EFI partition, which only root can read.
+#
+# Normally written by the setup screen, not edited by hand.
+
+# The page the TV shows. Empty means "not set up yet", which sends the box to
+# the setup screen instead.
+URL=""
+
+# Live screen viewing over VNC on port 5900. "on" for a box on the bench,
+# "off" for anything in a studio, because it exposes the screen to anyone on
+# that network.
+VNC="off"
