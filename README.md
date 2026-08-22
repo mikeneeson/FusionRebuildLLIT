@@ -9,21 +9,29 @@ fullscreen and never show anything else.
 
 ## Install
 
-On a fresh Debian 13 install with no desktop environment, copy this repo onto
-the machine and run:
+On a fresh Debian 13 install with no desktop environment, one command:
 
+    curl -fsSL https://raw.githubusercontent.com/mikeneeson/FusionRebuildLLIT/main/bootstrap.sh | sudo bash
+
+That clones the repo to `/opt/luckylogic-src` and runs the installer. It takes a
+few minutes, mostly downloading Chromium. When it finishes the TV is already
+showing the player, no reboot needed.
+
+If you would rather see what you are running first, do it the long way:
+
+    sudo apt install -y git
+    git clone https://github.com/mikeneeson/FusionRebuildLLIT.git
+    cd FusionRebuildLLIT
     sudo ./install.sh
 
-That is the whole install. It takes a few minutes, mostly downloading Chromium.
-When it finishes the TV is already showing the player, no reboot needed.
-
-Running it again is how updates are applied. It never overwrites a URL that has
-already been saved, so re-running on a working studio box is safe.
-
-If the machine has a checkout of this repo and can reach GitHub, later updates
-are just:
+Either way, running it again is how updates are applied. It never overwrites a
+URL that has already been saved, so re-running on a working studio box is safe.
+Once a player is installed, later updates are just:
 
     sudo luckylogic-update
+
+The repo is public, so nothing secret can ever go in it. A studio's NAS address
+lives in the config on that player only, never here.
 
 ## What the install does
 
@@ -77,6 +85,7 @@ the screen to everyone on a network we do not control.
 
 ## Layout
 
+    bootstrap.sh                   clones the repo and runs install.sh
     install.sh                     the whole install, idempotent
     player/bin/kiosk-launch        decides what to show, starts cage
     player/bin/kiosk-session       runs inside cage: VNC, Chromium, watchdog

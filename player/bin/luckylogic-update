@@ -3,25 +3,30 @@
 #
 #   sudo luckylogic-update
 #
-# The saved URL and the VNC setting are left alone. If the box cannot reach
-# GitHub, which is normal for a private repo on a studio network, this says so
-# and installs whatever is already in the source directory.
+# The saved URL and the VNC setting are left alone. If the source directory has
+# gone missing it is cloned again from GitHub.
 set -euo pipefail
+
+REPO="${LUCKYLOGIC_REPO:-https://github.com/mikeneeson/FusionRebuildLLIT.git}"
+BRANCH="${LUCKYLOGIC_BRANCH:-main}"
+SRC_FILE=/etc/luckylogic/install-source
+SRC="${LUCKYLOGIC_SRC:-/opt/luckylogic-src}"
 
 [[ $EUID -eq 0 ]] || { echo "Run this with sudo." >&2; exit 1; }
 
-SRC_FILE=/etc/luckylogic/install-source
-[[ -r "$SRC_FILE" ]] || { echo "No install source recorded. Re-run install.sh from a copy of the repo." >&2; exit 1; }
-SRC="$(cat "$SRC_FILE")"
-[[ -d "$SRC" ]] || { echo "Source directory $SRC is gone. Copy the repo back and run install.sh from it." >&2; exit 1; }
+# Prefer wherever this player was actually installed from.
+[[ -r "$SRC_FILE" ]] && SRC="$(cat "$SRC_FILE")"
 
 if [[ -d "$SRC/.git" ]]; then
-  echo "Fetching latest code into $SRC"
+  echo "== Fetching the latest code into $SRC"
   if ! git -C "$SRC" pull --ff-only; then
-    echo "Could not pull from GitHub. Installing the copy already on disk instead."
+    echo "Could not reach GitHub. Installing the copy already on disk instead."
   fi
+elif [[ -d "$SRC" ]]; then
+  echo "== $SRC is not a git checkout. Installing the copy already on disk."
 else
-  echo "$SRC is not a git checkout. Installing the copy already on disk."
+  echo "== $SRC has gone. Cloning it again."
+  git clone --depth 1 --branch "$BRANCH" "$REPO" "$SRC"
 fi
 
 "$SRC/install.sh"
