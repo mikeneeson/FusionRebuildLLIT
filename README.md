@@ -9,21 +9,29 @@ fullscreen and never show anything else.
 
 ## Install
 
-On a fresh Debian 13 install with no desktop environment, copy this repo onto
-the machine and run:
+On a fresh Debian 13 install with no desktop environment, one command:
 
+    curl -fsSL https://raw.githubusercontent.com/mikeneeson/FusionRebuildLLIT/main/bootstrap.sh | sudo bash
+
+That clones the repo to `/opt/luckylogic-src` and runs the installer. It takes a
+few minutes, mostly downloading Chromium. When it finishes the TV is already
+showing the player, no reboot needed.
+
+If you would rather see what you are running first, do it the long way:
+
+    sudo apt install -y git
+    git clone https://github.com/mikeneeson/FusionRebuildLLIT.git
+    cd FusionRebuildLLIT
     sudo ./install.sh
 
-That is the whole install. It takes a few minutes, mostly downloading Chromium.
-When it finishes the TV is already showing the player, no reboot needed.
-
-Running it again is how updates are applied. It never overwrites a URL that has
-already been saved, so re-running on a working studio box is safe.
-
-If the machine has a checkout of this repo and can reach GitHub, later updates
-are just:
+Either way, running it again is how updates are applied. It never overwrites a
+URL that has already been saved, so re-running on a working studio box is safe.
+Once a player is installed, later updates are just:
 
     sudo luckylogic-update
+
+The repo is public, so nothing secret can ever go in it. A studio's NAS address
+lives in the config on that player only, never here.
 
 ## What the install does
 
@@ -70,21 +78,37 @@ in a row for when it is frozen and the remote does nothing.
     journalctl -u luckylogic-kiosk -f      what it is doing, live
     sudo luckylogic-shot                   save a PNG of what is on the TV
 
-For a box on the bench, set `VNC="on"` in `/var/lib/luckylogic/player.conf` and
-restart the service. The real screen is then viewable from any VNC client on
-the network at port 5900. Leave this off for studio units, because it exposes
-the screen to everyone on a network we do not control.
+To watch the real screen live from another machine:
+
+    sudo luckylogic-vnc on
+
+Then point any VNC viewer at the player's address on port 5900. TigerVNC is the
+safe choice; older viewers sometimes struggle with wayvnc. There is no password.
+
+    luckylogic-vnc          which it is, and whether it is actually listening
+    sudo luckylogic-vnc off stop it
+
+Live view runs as its own service, separate from the kiosk, for two reasons.
+Turning it on or off takes effect within about five seconds and never interrupts
+what is on the TV. And it keeps running while the kiosk restarts underneath it,
+which is the situation you most want to be watching.
+
+Leave it off for studio units. It has no password and exposes the screen to
+anyone on that network.
 
 ## Layout
 
+    bootstrap.sh                   clones the repo and runs install.sh
     install.sh                     the whole install, idempotent
     player/bin/kiosk-launch        decides what to show, starts cage
     player/bin/kiosk-session       runs inside cage: VNC, Chromium, watchdog
     player/bin/luckylogic-shot     screenshot of the live display
+    player/bin/luckylogic-vnc      turn live screen viewing on or off
+    player/bin/vnc-launch          the live view service itself
     player/bin/luckylogic-update   pull latest code and reinstall
     player/setup/scan.py           finds the NAS on the local network
     player/chromium/policies.json  Chromium managed policy
-    player/systemd/               the kiosk service
+    player/systemd/               the kiosk and live view services
     player/config/                default config
 
 ## Hardware

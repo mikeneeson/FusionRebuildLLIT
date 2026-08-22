@@ -69,6 +69,7 @@ find "$SHARE" -type d -exec chmod 755 {} +
 # One word commands, on the path for whoever is logged in.
 ln -sf "$SHARE/bin/luckylogic-shot"   /usr/local/bin/luckylogic-shot
 ln -sf "$SHARE/bin/luckylogic-update" /usr/local/bin/luckylogic-update
+ln -sf "$SHARE/bin/luckylogic-vnc"    /usr/local/bin/luckylogic-vnc
 
 
 say "Setting up $STATE"
@@ -101,11 +102,15 @@ systemctl disable --now getty@tty1.service >/dev/null 2>&1 || true
 systemctl mask getty@tty1.service >/dev/null 2>&1 || true
 
 
-say "Installing the kiosk service"
-install -m 644 "$SRC/player/systemd/luckylogic-kiosk.service" \
-  /etc/systemd/system/luckylogic-kiosk.service
+say "Installing the services"
+for unit in luckylogic-kiosk luckylogic-vnc; do
+  install -m 644 "$SRC/player/systemd/$unit.service" "/etc/systemd/system/$unit.service"
+done
 systemctl daemon-reload
 systemctl enable luckylogic-kiosk.service >/dev/null
+# Live view runs all the time but sits idle unless VNC="on" in the config, so
+# turning it on later never needs a service restart or a reboot.
+systemctl enable luckylogic-vnc.service >/dev/null
 
 # No desktop is installed, so make sure the machine boots to a plain console
 # and lets the kiosk service take the screen.
@@ -118,6 +123,7 @@ printf '%s\n' "$SRC" > "$ETC/install-source"
 
 say "Starting the kiosk"
 systemctl restart luckylogic-kiosk.service
+systemctl restart luckylogic-vnc.service
 
 cat <<SUMMARY
 
@@ -129,6 +135,7 @@ LuckyLogic Player is installed.
   Check it is running     systemctl status luckylogic-kiosk
   Watch what it is doing  journalctl -u luckylogic-kiosk -f
   Screenshot the TV       sudo luckylogic-shot
+  Watch it live           sudo luckylogic-vnc on
   Update later            sudo luckylogic-update
 
 SUMMARY

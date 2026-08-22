@@ -1,0 +1,42 @@
+#!/bin/bash
+# Live screen viewing, run as its own service so it survives the kiosk
+# restarting underneath it.
+#
+# It attaches to whatever Wayland session the kiosk is currently running, so
+# what you see over VNC is the real TV output, not a second copy of the page.
+set -uo pipefail
+
+CONF=/var/lib/luckylogic/player.conf
+RUNDIR=/run/luckylogic
+PORT=5900
+
+conf_value() {
+  [[ -r "$CONF" ]] || return 0
+  sed -n "s/^$1=\"\?\([^\"]*\)\"\?[[:space:]]*$/\1/p" "$CONF" | tail -n 1
+}
+
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+
+announced_off=0
+while true; do
+  if [[ "$(conf_value VNC)" != "on" ]]; then
+    # Checking the flag on a loop rather than at startup means turning live
+    # view on takes a few seconds and does not interrupt what is on the TV.
+    (( announced_off )) || { echo "luckylogic: live view is off (VNC=\"off\")"; announced_off=1; }
+    sleep 5
+    continue
+  fi
+  announced_off=0
+
+  if [[ ! -r "$RUNDIR/wayland-display" ]]; then
+    echo "luckylogic: waiting for the kiosk session to come up"
+    sleep 5
+    continue
+  fi
+
+  export WAYLAND_DISPLAY="$(cat "$RUNDIR/wayland-display")"
+  echo "luckylogic: live view listening on port $PORT"
+  wayvnc 0.0.0.0 "$PORT"
+  echo "luckylogic: live view stopped (exit $?), retrying in 5s"
+  sleep 5
+done

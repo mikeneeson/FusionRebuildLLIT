@@ -1,0 +1,37 @@
+#!/bin/bash
+# Turn live screen viewing on or off.
+#
+#   sudo luckylogic-vnc on       watch this player from another machine
+#   sudo luckylogic-vnc off      stop that
+#   luckylogic-vnc               show which it is
+#
+# Takes a few seconds to take effect. It does not interrupt what is on the TV.
+set -euo pipefail
+
+CONF=/var/lib/luckylogic/player.conf
+ACTION="${1:-status}"
+
+case "$ACTION" in
+  on|off)
+    [[ $EUID -eq 0 ]] || { echo "Run this with sudo." >&2; exit 1; }
+    sed -i "s/^VNC=.*/VNC=\"$ACTION\"/" "$CONF"
+    echo "Live view is now $ACTION. Give it five seconds."
+    if [[ "$ACTION" == "on" ]]; then
+      echo
+      echo "Point a VNC viewer at:  $(hostname -I | awk '{print $1}'):5900"
+      echo "There is no password, so turn this off before the box goes to a studio."
+    fi
+    ;;
+  status)
+    echo "Config says:  VNC=\"$(sed -n 's/^VNC="\?\([^"]*\)"\?$/\1/p' "$CONF" | tail -n 1)\""
+    if ss -lnt 2>/dev/null | grep -q ':5900 '; then
+      echo "Right now:    listening on $(hostname -I | awk '{print $1}'):5900"
+    else
+      echo "Right now:    not listening"
+    fi
+    ;;
+  *)
+    echo "Usage: luckylogic-vnc [on|off|status]" >&2
+    exit 1
+    ;;
+esac
