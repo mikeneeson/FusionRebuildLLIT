@@ -1,0 +1,20 @@
+[Unit]
+Description=LuckyLogic Player setup screen
+After=network.target
+# Runs all the time, not just on first boot. It is how a player gets pointed at
+# a different page later without anyone visiting the studio with a keyboard.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=player
+Group=player
+ExecStart=/usr/bin/python3 /opt/luckylogic/setup/server.py
+WorkingDirectory=/opt/luckylogic/setup
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

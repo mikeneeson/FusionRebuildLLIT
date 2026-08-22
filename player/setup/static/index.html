@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LuckyLogic Player Setup</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">Lucky<span>Logic</span> <em>Player</em></div>
+  <div class="reach">
+    Or set this up from a phone at <b id="ownUrl">&hellip;</b>
+  </div>
+</header>
+
+<nav class="steps">
+  <span data-step="0">1 &middot; Machine</span>
+  <span data-step="1">2 &middot; Port</span>
+  <span data-step="2">3 &middot; Folder</span>
+  <span data-step="3">4 &middot; Check</span>
+</nav>
+
+<main>
+
+  <section class="step" data-step="0">
+    <h1>Which machine serves the page?</h1>
+    <p class="hint">Arrow keys to move, Enter to choose.</p>
+    <p class="status" id="scanStatus">Looking for devices on the network&hellip;</p>
+    <ul class="devices" id="deviceList"></ul>
+    <div class="manual">
+      <label for="hostInput">Or type an address</label>
+      <input id="hostInput" class="focusable" type="text" autocomplete="off"
+             spellcheck="false" placeholder="192.168.1.56">
+    </div>
+    <button id="rescan" class="focusable ghost">Scan again</button>
+  </section>
+
+  <section class="step" data-step="1" hidden>
+    <h1>Which port?</h1>
+    <p class="hint">8888 is the usual one for Web Station. Enter to continue.</p>
+    <input id="portInput" class="focusable big" type="text" inputmode="numeric"
+           autocomplete="off" spellcheck="false">
+    <div class="chips" id="portChips"></div>
+  </section>
+
+  <section class="step" data-step="2" hidden>
+    <h1>Which folder?</h1>
+    <p class="hint">The folder the controller page lives in. Enter to continue.</p>
+    <input id="pathInput" class="focusable big" type="text"
+           autocomplete="off" spellcheck="false">
+    <div class="chips" id="pathChips"></div>
+  </section>
+
+  <section class="step" data-step="3" hidden>
+    <h1>Check this is right</h1>
+    <p class="hint">The player will load this page before saving it.</p>
+    <p class="assembled" id="assembled"></p>
+    <p class="result" id="result"></p>
+    <div class="row">
+      <button id="saveBtn" class="focusable primary">Check and save</button>
+      <button id="backBtn" class="focusable ghost">Go back</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="preview" id="preview"></span>
+  <span class="keys">Backspace goes back</span>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+/* Sized for a TV across the room first, but it has to work on a phone too, so
+   everything scales with the viewport and clamps at both ends.
+   No web fonts: a studio has to be able to set a player up with the WAN down. */
+
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --line: #2b333d;
+  --text: #e6edf3;
+  --dim: #8b949e;
+  --gold: #d4a017;
+  --good: #3fb950;
+  --bad: #f85149;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "DejaVu Sans", "Liberation Sans", system-ui, sans-serif;
+  font-size: clamp(15px, 1.15vw, 24px);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 2.5vh 4vw;
+  gap: 2vh;
+}
+
+header { display: flex; justify-content: space-between; align-items: baseline; gap: 2em; flex-wrap: wrap; }
+.brand { font-size: 1.8em; font-weight: 700; letter-spacing: .01em; }
+.brand span { color: var(--gold); }
+.brand em { font-style: normal; font-weight: 400; color: var(--dim); }
+.reach { color: var(--dim); }
+.reach b { color: var(--text); font-weight: 600; }
+
+.steps { display: flex; gap: 1.5em; color: var(--dim); border-bottom: 1px solid var(--line); padding-bottom: .8em; flex-wrap: wrap; }
+.steps span.on { color: var(--gold); font-weight: 600; }
+.steps span.done { color: var(--text); }
+
+main { flex: 1; min-height: 0; display: flex; }
+.step { flex: 1; display: flex; flex-direction: column; gap: .9em; min-height: 0; }
+.step[hidden] { display: none; }
+
+h1 { font-size: 1.9em; font-weight: 600; margin: 0; }
+.hint, .status { color: var(--dim); margin: 0; }
+
+/* The device list is the main event on the TV, so it gets the room. */
+.devices { list-style: none; margin: 0; padding: 0; overflow-y: auto; max-height: 46vh;
+           border: 1px solid var(--line); border-radius: .5em; background: var(--panel); }
+.devices:empty { display: none; }
+.devices li { display: flex; align-items: baseline; gap: 1em; padding: .7em 1em;
+              border-bottom: 1px solid var(--line); cursor: pointer; }
+.devices li:last-child { border-bottom: 0; }
+.devices .ip { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 9em; }
+.devices .name { flex: 1; }
+.devices .why { color: var(--dim); font-size: .9em; }
+.devices li.likely .why { color: var(--gold); }
+
+.manual { display: flex; flex-direction: column; gap: .35em; }
+.manual label { color: var(--dim); }
+
+input, button {
+  font: inherit;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: .4em;
+  padding: .6em .8em;
+}
+input.big { font-size: 1.8em; letter-spacing: .02em; max-width: 8em; }
+input::placeholder { color: #4d5866; }
+
+button { cursor: pointer; align-self: flex-start; }
+.row button, .chips button { align-self: auto; }
+button.primary { background: var(--gold); color: #201700; border-color: var(--gold); font-weight: 600; }
+button.ghost { background: transparent; color: var(--dim); }
+.row { display: flex; gap: .8em; }
+
+.chips { display: flex; gap: .6em; flex-wrap: wrap; }
+.chips button { color: var(--dim); }
+
+/* One focus ring for everything, thick enough to read from the sofa. */
+.focusable:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+.devices li:focus { outline: none; background: #1e2631; box-shadow: inset .35em 0 0 var(--gold); }
+.devices li:focus .name { color: var(--text); }
+:focus { outline-color: var(--gold); }
+
+.assembled { font-size: 2.1em; font-weight: 600; word-break: break-all; margin: .2em 0; }
+.result { margin: 0; min-height: 1.4em; }
+.result.good { color: var(--good); }
+.result.bad { color: var(--bad); }
+.result.busy { color: var(--dim); }
+
+footer { display: flex; justify-content: space-between; color: var(--dim);
+         border-top: 1px solid var(--line); padding-top: .8em; gap: 1em; flex-wrap: wrap; }
+.preview { color: var(--text); word-break: break-all; }
