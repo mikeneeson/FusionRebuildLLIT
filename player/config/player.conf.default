@@ -14,3 +14,7 @@ URL=""
 # "off" for anything in a studio, because it exposes the screen to anyone on
 # that network.
 VNC="off"
+
+# Setup screen appearance: "dark" (default) or "light". The dark theme is the
+# brand green; light is the same design on off-white for a bright room.
+THEME="dark"
