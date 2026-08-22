@@ -67,7 +67,9 @@ function assembled() {
 
 function updatePreview() {
   var url = assembled();
-  $('preview').textContent = url ? 'Will load  ' + url : '';
+  $('preview').innerHTML = url
+    ? '<em>Will load</em>  ' + url.replace(/[&<>]/g, '')
+    : '';
 }
 
 /* -------------------------------------------------------------- the scanning */
@@ -90,11 +92,11 @@ function renderDevices(data) {
 
     var name = document.createElement('span');
     name.className = 'name';
-    name.textContent = device.name || '';
+    name.textContent = device.name || device.reason || '';
 
     var why = document.createElement('span');
-    why.className = 'why';
-    why.textContent = device.reason || '';
+    why.className = 'badge';
+    why.textContent = device.synology ? 'Synology' : (device.reason || '');
 
     li.appendChild(ip);
     li.appendChild(name);
@@ -238,6 +240,8 @@ function chip(container, label, value, input) {
 function boot() {
   fetch('/api/state').then(function (r) { return r.json(); }).then(function (data) {
     $('ownUrl').textContent = 'http://' + data.own_ip + ':7777';
+    $('version').textContent = data.version ? 'v' + data.version : '';
+    if (data.theme === 'light') { document.documentElement.dataset.theme = 'light'; }
     $('portInput').value = data.default_port;
     $('pathInput').value = data.default_path;
     startingUrl = data.url;

@@ -45,6 +45,11 @@ apt-get install -y --no-install-recommends \
   vainfo \
   wayvnc
 
+# Fonts for the setup screen. Not fatal if a release does not carry them, the
+# design falls back to DejaVu Sans, which every Debian install has.
+apt-get install -y --no-install-recommends fonts-inter fonts-firacode >/dev/null 2>&1 \
+  || echo "Note: Inter and Fira Code are not available, falling back to DejaVu."
+
 
 say "Creating the player user"
 # A locked system account with no password and no login shell. It owns the
@@ -119,9 +124,17 @@ systemctl enable luckylogic-vnc.service >/dev/null
 # and lets the kiosk service take the screen.
 systemctl set-default multi-user.target >/dev/null 2>&1 || true
 
-# Remember where this copy of the repo lives so luckylogic-update can find it.
+# Remember where this copy of the repo lives so luckylogic-update can find it,
+# and record exactly what got installed so the setup screen can show it.
 mkdir -p "$ETC"
 printf '%s\n' "$SRC" > "$ETC/install-source"
+{
+  printf 'VERSION=%s\n' "$(cat "$SRC/VERSION" 2>/dev/null || echo unknown)"
+  printf 'INSTALLED=%s\n' "$(date '+%Y-%m-%d %H:%M')"
+  printf 'COMMIT=%s\n' "$(git -C "$SRC" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+} > "$ETC/version"
+chmod 755 "$ETC"
+chmod 644 "$ETC/version"
 
 
 say "Starting the kiosk"
@@ -131,7 +144,7 @@ systemctl restart luckylogic-vnc.service
 
 cat <<SUMMARY
 
-LuckyLogic Player is installed.
+LuckyLogic Player $(cat "$SRC/VERSION" 2>/dev/null) is installed.
 
   What is on the TV now   $(grep -q '^URL=""' "$STATE/player.conf" && echo "the setup holding screen" || echo "the saved page")
   This machine            $(hostname -I | awk '{print $1}')

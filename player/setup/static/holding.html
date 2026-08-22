@@ -1,22 +1,65 @@
 <!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <title>LuckyLogic Player</title>
 <style>
-  html, body { height: 100%; margin: 0; }
-  body {
-    background: #0d1117; color: #e6edf3;
-    font-family: "DejaVu Sans", sans-serif;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-  }
-  h1 { font-size: 3.5vw; font-weight: 600; letter-spacing: .04em; margin: 0 0 .4em; }
-  h1 span { color: #d4a017; }
-  p { font-size: 1.6vw; color: #8b949e; margin: .3em 0; }
-  code { color: #d4a017; font-size: .9em; }
-  .ip { font-size: 2.6vw; color: #e6edf3; margin-top: 1.2em; font-variant-numeric: tabular-nums; }
+/* Standalone on purpose: this is the screen shown when the setup service is
+   not answering, so it cannot depend on the setup service to serve its CSS.
+   The mark below is a copy of the one in index.html. */
+:root { --bg: #08190f; --gold: #d9a441; --text: #f4f1e9; --muted: #93ab9c; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: #08190f;
+  background-image:
+    radial-gradient(120% 90% at 12% -10%, #12321f 0%, transparent 60%),
+    radial-gradient(80% 70% at 100% 110%, rgba(217,164,65,.10) 0%, transparent 55%);
+  color: var(--text);
+  font-family: "Inter", "Lato", "DejaVu Sans", system-ui, sans-serif;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 1.2em; padding: 6vh 6vw;
+}
+svg { width: 13vw; max-width: 210px; height: auto; color: var(--text); }
+h1 { margin: 0; font-size: clamp(1.6em, 3vw, 2.6em); font-weight: 700; letter-spacing: -.015em; }
+p { margin: 0; color: var(--muted); font-size: clamp(1em, 1.4vw, 1.4em); }
+code { color: var(--gold); font-family: "Fira Code", "DejaVu Sans Mono", monospace; }
+.ip {
+  margin-top: .6em; padding: .6em 1.4em;
+  border: 1px solid rgba(244,241,233,.13); border-left: 4px solid var(--gold);
+  border-radius: 14px; color: var(--text);
+  font-family: "Fira Code", "DejaVu Sans Mono", monospace;
+  font-size: clamp(1.3em, 2.4vw, 2.2em); font-weight: 600;
+}
 </style>
-<h1>Lucky<span>Logic</span> Player</h1>
-<p>The setup screen is not responding.</p>
-<p class="ip">@IP@</p>
-<p>On another machine, check:<br><code>systemctl status luckylogic-setup</code></p>
+</head>
+<body>
+<svg viewBox="19 9 73 68" role="img" aria-label="LuckyLogic">
+  <style>
+    /* The clover carries its own cut line so the lobes stay separate on any
+       background. --bg comes from the page; the fallback is the dark theme. */
+    .ll-cut { stroke: var(--bg, #08190f); stroke-width: 2.4; stroke-linejoin: round; }
+  </style>
+  <g fill="currentColor">
+    <rect x="23" y="13" width="10" height="60" rx="2.5"/>
+    <rect x="23" y="63" width="30" height="10" rx="2.5"/>
+    <rect x="55" y="13" width="10" height="60" rx="2.5"/>
+    <rect x="55" y="63" width="33" height="10" rx="2.5"/>
+  </g>
+  <g transform="translate(61 41)" fill="#d9a441">
+    <path d="M2.4 1C4.1 10.5 4.2 16.5 -2 22.5 -0.6 16.5 -1.1 8 -2.3 2Z"/>
+  </g>
+  <g transform="translate(61 41)" fill="#d9a441" class="ll-cut">
+    <path transform="rotate(45)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+    <path transform="rotate(135)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+    <path transform="rotate(225)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+    <path transform="rotate(315)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+  </g>
+</svg>
+<h1>The setup screen is not responding</h1>
+<p>This player is running, but it has no page to show yet.</p>
+<div class="ip">@IP@</div>
+<p>From another machine on this network, check<br>
+<code>systemctl status luckylogic-setup</code></p>
+</body>
+</html>

@@ -127,6 +127,7 @@ anyone on that network.
 
 ## Layout
 
+    VERSION                        the version number, shown in the UI
     bootstrap.sh                   clones the repo and runs install.sh
     install.sh                     the whole install, idempotent
     player/bin/kiosk-launch        decides what to show, starts cage
@@ -141,6 +142,27 @@ anyone on that network.
     player/chromium/policies.json  Chromium managed policy
     player/systemd/               kiosk, setup and live view services
     player/config/                default config
+
+## Look and versioning
+
+The setup screen is built from the LuckyLogic mark: deep forest green, gold
+clover, wide geometric capitals. The mark is drawn as inline SVG rather than a
+picture file, so it stays sharp on any TV and needs nothing downloaded. Every
+colour is a token at the top of `player/setup/static/style.css`, so the whole
+system re-themes from one block.
+
+Two themes ship. `THEME="dark"` in the config is the default, brand green for a
+TV in a studio. `THEME="light"` is the same design on off-white for a bright
+room. Change it in `/var/lib/luckylogic/player.conf`; it takes effect on the
+next page load.
+
+Fonts are Inter and Fira Code where Debian has them, falling back to DejaVu
+Sans. Nothing is ever fetched from the internet.
+
+The version lives in `VERSION` at the top of the repo. The installer records
+what it installed to `/etc/luckylogic/version`, including the git commit and
+the install date, and the setup screen shows the version in its footer. To cut
+a release, edit `VERSION` and commit.
 
 ## Hardware
 

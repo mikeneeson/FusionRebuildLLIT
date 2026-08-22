@@ -27,6 +27,8 @@ HERE = pathlib.Path(__file__).resolve().parent
 STATIC = HERE / "static"
 CONF = pathlib.Path(os.environ.get("LUCKYLOGIC_CONF", "/var/lib/luckylogic/player.conf"))
 SETUP_FLAG = CONF.parent / "setup-requested"
+VERSION_FILE = pathlib.Path(os.environ.get("LUCKYLOGIC_VERSION_FILE",
+                                           "/etc/luckylogic/version"))
 
 DEFAULT_PORT = 8888
 DEFAULT_PATH = "control"
@@ -55,6 +57,7 @@ def save_url(url):
     values = read_config()
     values["URL"] = url
     values.setdefault("VNC", "off")
+    values.setdefault("THEME", "dark")
 
     lines = [
         "# LuckyLogic Player configuration.",
@@ -62,6 +65,7 @@ def save_url(url):
         "",
         f'URL="{values["URL"]}"',
         f'VNC="{values["VNC"]}"',
+        f'THEME="{values["THEME"]}"',
         "",
     ]
     temp = CONF.with_suffix(".tmp")
@@ -70,6 +74,19 @@ def save_url(url):
 
     # A configured player must not land back on the setup screen next boot.
     SETUP_FLAG.unlink(missing_ok=True)
+
+
+def read_version():
+    """What is installed, written by install.sh. Empty if it cannot be read."""
+    details = {}
+    try:
+        for line in VERSION_FILE.read_text().splitlines():
+            if "=" in line:
+                key, _, value = line.partition("=")
+                details[key.strip().lower()] = value.strip()
+    except OSError:
+        pass
+    return details
 
 
 def own_ip():
@@ -255,9 +272,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.send_file("style.css", "text/css; charset=utf-8")
         elif route == "/api/state":
             config = read_config()
+            version = read_version()
             self.send_json({
                 "url": config.get("URL", ""),
                 "vnc": config.get("VNC", "off"),
+                "theme": config.get("THEME", "dark"),
+                "version": version.get("version", ""),
+                "installed": version.get("installed", ""),
+                "commit": version.get("commit", ""),
                 "own_ip": own_ip(),
                 "hostname": socket.gethostname(),
                 "default_port": DEFAULT_PORT,

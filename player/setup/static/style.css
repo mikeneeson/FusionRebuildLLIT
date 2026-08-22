@@ -1,101 +1,260 @@
-/* Sized for a TV across the room first, but it has to work on a phone too, so
-   everything scales with the viewport and clamps at both ends.
-   No web fonts: a studio has to be able to set a player up with the WAN down. */
+/* LuckyLogic Player, visual system.
+ *
+ * Built from the LuckyLogic mark: deep forest green, gold clover, wide
+ * geometric capitals. Everything is a token below, so the whole system can be
+ * re-themed from one block.
+ *
+ * Sized for a TV read from across a studio first, and a phone second. No web
+ * fonts and no external assets of any kind, because a studio has to be able to
+ * set a player up with the WAN down. */
 
 :root {
-  --bg: #0d1117;
-  --panel: #161b22;
-  --line: #2b333d;
-  --text: #e6edf3;
-  --dim: #8b949e;
-  --gold: #d4a017;
-  --good: #3fb950;
-  --bad: #f85149;
+  /* Brand */
+  --brand-green: #123524;
+  --gold: #d9a441;
+  --gold-bright: #efc167;
+  --gold-deep: #b8842c;
+
+  /* Dark is the default. A setup screen on a TV in a dim studio should not be
+     a wall of white. */
+  --bg: #08190f;
+  --bg-glow: #12321f;
+  --surface: rgba(244, 241, 233, 0.045);
+  --surface-lift: rgba(244, 241, 233, 0.085);
+  --text: #f4f1e9;
+  --muted: #93ab9c;
+  --line: rgba(244, 241, 233, 0.13);
+  --line-strong: rgba(244, 241, 233, 0.22);
+  --on-gold: #16150c;
+  --good: #6ec98a;
+  --bad: #ef8b7c;
+
+  --radius: 14px;
+  --radius-lg: 20px;
+}
+
+:root[data-theme="light"] {
+  --bg: #f7f5ef;
+  --bg-glow: #ffffff;
+  --surface: #ffffff;
+  --surface-lift: #ffffff;
+  --text: #123524;
+  --muted: #5c7466;
+  --line: rgba(18, 53, 36, 0.14);
+  --line-strong: rgba(18, 53, 36, 0.28);
+  --on-gold: #16150c;
+  --good: #1d7a41;
+  --bad: #b3402f;
 }
 
 * { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
-  height: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: "DejaVu Sans", "Liberation Sans", system-ui, sans-serif;
-  font-size: clamp(15px, 1.15vw, 24px);
-}
+html, body { height: 100%; margin: 0; }
 
 body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(120% 90% at 12% -10%, var(--bg-glow) 0%, transparent 60%),
+    radial-gradient(80% 70% at 100% 110%, rgba(217, 164, 65, 0.10) 0%, transparent 55%);
+  color: var(--text);
+  font-family: "Inter", "Lato", "Cantarell", "DejaVu Sans", system-ui, sans-serif;
+  font-size: clamp(15px, 1.05vw, 23px);
+  -webkit-font-smoothing: antialiased;
   display: flex;
   flex-direction: column;
-  padding: 2.5vh 4vw;
-  gap: 2vh;
+  gap: 2.2vh;
+  padding: 3vh 4vw;
 }
 
-header { display: flex; justify-content: space-between; align-items: baseline; gap: 2em; flex-wrap: wrap; }
-.brand { font-size: 1.8em; font-weight: 700; letter-spacing: .01em; }
-.brand span { color: var(--gold); }
-.brand em { font-style: normal; font-weight: 400; color: var(--dim); }
-.reach { color: var(--dim); }
-.reach b { color: var(--text); font-weight: 600; }
+/* ------------------------------------------------------------------ the mark */
 
-.steps { display: flex; gap: 1.5em; color: var(--dim); border-bottom: 1px solid var(--line); padding-bottom: .8em; flex-wrap: wrap; }
-.steps span.on { color: var(--gold); font-weight: 600; }
-.steps span.done { color: var(--text); }
+.logo { display: flex; align-items: center; gap: .7em; }
+.logo svg { width: 3.45em; height: 3.2em; display: block; color: var(--text); }
+.wordmark { line-height: 1; }
+.wordmark b, .wordmark span {
+  font-size: .95em;
+  display: block;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.wordmark span { color: var(--gold); }
+.wordmark small {
+  display: block;
+  margin-top: .45em;
+  font-size: .58em;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------------- top matter */
+
+header { display: flex; justify-content: space-between; align-items: center; gap: 2em; flex-wrap: wrap; }
+.reach { text-align: right; color: var(--muted); font-size: .82em; letter-spacing: .04em; }
+.reach b {
+  display: block;
+  margin-top: .25em;
+  color: var(--text);
+  font-size: 1.25em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.steps { display: flex; align-items: center; gap: .55em; flex-wrap: wrap; }
+.steps span {
+  display: inline-flex; align-items: center; gap: .5em;
+  padding: .42em .95em .42em .5em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: .78em;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.steps span::before {
+  content: attr(data-n);
+  display: grid; place-items: center;
+  width: 1.9em; height: 1.9em;
+  border-radius: 999px;
+  background: var(--surface-lift);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.steps span.done { color: var(--text); border-color: var(--line-strong); }
+.steps span.done::before { background: rgba(217, 164, 65, .18); color: var(--gold); }
+.steps span.on {
+  color: var(--on-gold);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.steps span.on::before { background: rgba(0, 0, 0, .22); color: var(--on-gold); }
+
+/* --------------------------------------------------------------------- panels */
 
 main { flex: 1; min-height: 0; display: flex; }
-.step { flex: 1; display: flex; flex-direction: column; gap: .9em; min-height: 0; }
+.step { flex: 1; display: flex; flex-direction: column; gap: 1em; min-height: 0; }
 .step[hidden] { display: none; }
 
-h1 { font-size: 1.9em; font-weight: 600; margin: 0; }
-.hint, .status { color: var(--dim); margin: 0; }
+h1 { margin: 0; font-size: clamp(1.6em, 2.4vw, 2.3em); font-weight: 700; letter-spacing: -.015em; }
+.hint, .status { margin: 0; color: var(--muted); }
+.status { font-size: .92em; }
 
-/* The device list is the main event on the TV, so it gets the room. */
-.devices { list-style: none; margin: 0; padding: 0; overflow-y: auto; max-height: 46vh;
-           border: 1px solid var(--line); border-radius: .5em; background: var(--panel); }
-.devices:empty { display: none; }
-.devices li { display: flex; align-items: baseline; gap: 1em; padding: .7em 1em;
-              border-bottom: 1px solid var(--line); cursor: pointer; }
-.devices li:last-child { border-bottom: 0; }
-.devices .ip { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 9em; }
-.devices .name { flex: 1; }
-.devices .why { color: var(--dim); font-size: .9em; }
-.devices li.likely .why { color: var(--gold); }
+/* --------------------------------------------------------------- device cards */
 
-.manual { display: flex; flex-direction: column; gap: .35em; }
-.manual label { color: var(--dim); }
+.devices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5em;
+           max-height: 44vh; overflow-y: auto; }
+.devices li {
+  display: flex; align-items: center; gap: 1.1em;
+  padding: .95em 1.2em;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease, transform .12s ease;
+}
+.devices .ip {
+  font-family: "Fira Code", "DejaVu Sans Mono", ui-monospace, monospace;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  min-width: 8.5em;
+}
+.devices .name { flex: 1; color: var(--muted); }
+.devices li.likely .name { color: var(--text); }
+.badge {
+  padding: .3em .8em;
+  border-radius: 999px;
+  font-size: .74em;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.devices li.likely .badge { color: var(--gold); border-color: rgba(217, 164, 65, .45); background: rgba(217, 164, 65, .10); }
+
+/* One highlight style everywhere, heavy enough to spot from a sofa. */
+.devices li:focus {
+  outline: none;
+  background: var(--surface-lift);
+  border-color: var(--gold);
+  box-shadow: inset .3em 0 0 var(--gold), 0 0 0 3px rgba(217, 164, 65, .22);
+  transform: translateX(2px);
+}
+
+/* --------------------------------------------------------------------- fields */
+
+.manual { display: flex; flex-direction: column; gap: .45em; }
+.manual label, .chips-label {
+  color: var(--muted);
+  font-size: .78em;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
 
 input, button {
   font: inherit;
   color: var(--text);
-  background: var(--panel);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: .4em;
-  padding: .6em .8em;
+  border-radius: var(--radius);
+  padding: .75em 1em;
+  transition: border-color .12s ease, background .12s ease;
 }
-input.big { font-size: 1.8em; letter-spacing: .02em; max-width: 8em; }
-input::placeholder { color: #4d5866; }
+input { font-family: "Fira Code", "DejaVu Sans Mono", ui-monospace, monospace; }
+input.big { font-size: clamp(1.5em, 2.6vw, 2.2em); font-weight: 600; max-width: 6.5em; text-align: center; }
+input::placeholder { color: var(--muted); opacity: .55; }
 
-button { cursor: pointer; align-self: flex-start; }
-.row button, .chips button { align-self: auto; }
-button.primary { background: var(--gold); color: #201700; border-color: var(--gold); font-weight: 600; }
-button.ghost { background: transparent; color: var(--dim); }
-.row { display: flex; gap: .8em; }
+button { cursor: pointer; align-self: flex-start; font-weight: 600; }
+button.primary {
+  background: var(--gold); color: var(--on-gold); border-color: var(--gold);
+  padding-inline: 1.6em;
+  box-shadow: 0 6px 20px rgba(217, 164, 65, .22);
+}
+button.ghost { background: transparent; color: var(--muted); }
+.row { display: flex; gap: .7em; align-items: center; }
+.row button { align-self: auto; }
 
-.chips { display: flex; gap: .6em; flex-wrap: wrap; }
-.chips button { color: var(--dim); }
+.chips { display: flex; gap: .5em; flex-wrap: wrap; }
+.chips button { align-self: auto; padding: .5em 1.1em; border-radius: 999px; color: var(--muted); font-size: .88em; }
 
-/* One focus ring for everything, thick enough to read from the sofa. */
-.focusable:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
-.devices li:focus { outline: none; background: #1e2631; box-shadow: inset .35em 0 0 var(--gold); }
-.devices li:focus .name { color: var(--text); }
-:focus { outline-color: var(--gold); }
+.focusable:focus { outline: 3px solid var(--gold); outline-offset: 3px; border-color: var(--gold); }
 
-.assembled { font-size: 2.1em; font-weight: 600; word-break: break-all; margin: .2em 0; }
-.result { margin: 0; min-height: 1.4em; }
+/* ------------------------------------------------------------------- the check */
+
+.assembled {
+  margin: .1em 0;
+  font-family: "Fira Code", "DejaVu Sans Mono", ui-monospace, monospace;
+  font-size: clamp(1.3em, 2.5vw, 2.1em);
+  font-weight: 600;
+  word-break: break-all;
+  padding: .7em 1em;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius);
+}
+.result { margin: 0; min-height: 1.5em; font-size: .95em; }
 .result.good { color: var(--good); }
 .result.bad { color: var(--bad); }
-.result.busy { color: var(--dim); }
+.result.busy { color: var(--muted); }
 
-footer { display: flex; justify-content: space-between; color: var(--dim);
-         border-top: 1px solid var(--line); padding-top: .8em; gap: 1em; flex-wrap: wrap; }
-.preview { color: var(--text); word-break: break-all; }
+/* ------------------------------------------------------------------- the foot */
+
+footer {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1.5em; flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 1em;
+  color: var(--muted);
+  font-size: .82em;
+  letter-spacing: .04em;
+}
+.preview { color: var(--text); word-break: break-all;
+           font-family: "Fira Code", "DejaVu Sans Mono", ui-monospace, monospace; }
+.preview em { font-style: normal; color: var(--muted); }
+.meta { display: flex; gap: 1.5em; }
+.version { color: var(--gold); font-variant-numeric: tabular-nums; }

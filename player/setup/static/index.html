@@ -9,17 +9,44 @@
 <body>
 
 <header>
-  <div class="brand">Lucky<span>Logic</span> <em>Player</em></div>
+  <div class="logo">
+      <svg viewBox="19 9 73 68" role="img" aria-label="LuckyLogic">
+      <style>
+        /* The clover carries its own cut line so the lobes stay separate on any
+           background. --bg comes from the page; the fallback is the dark theme. */
+        .ll-cut { stroke: var(--bg, #08190f); stroke-width: 2.4; stroke-linejoin: round; }
+      </style>
+      <g fill="currentColor">
+        <rect x="23" y="13" width="10" height="60" rx="2.5"/>
+        <rect x="23" y="63" width="30" height="10" rx="2.5"/>
+        <rect x="55" y="13" width="10" height="60" rx="2.5"/>
+        <rect x="55" y="63" width="33" height="10" rx="2.5"/>
+      </g>
+      <g transform="translate(61 41)" fill="#d9a441">
+        <path d="M2.4 1C4.1 10.5 4.2 16.5 -2 22.5 -0.6 16.5 -1.1 8 -2.3 2Z"/>
+      </g>
+      <g transform="translate(61 41)" fill="#d9a441" class="ll-cut">
+        <path transform="rotate(45)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+        <path transform="rotate(135)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+        <path transform="rotate(225)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+        <path transform="rotate(315)" d="M0 -12.5C0 -12.5 -1.1 -16 -4.6 -16 -8 -16 -9.1 -13.1 -9.1 -11.4 -9.1 -6.8 -4.6 -3.4 0 0 4.6 -3.4 9.1 -6.8 9.1 -11.4 9.1 -13.1 8 -16 4.6 -16 1.1 -16 0 -12.5 0 -12.5Z"/>
+      </g>
+    </svg>
+    <div class="wordmark">
+      <b>Lucky</b><span>Logic</span><small>Player</small>
+    </div>
+  </div>
   <div class="reach">
-    Or set this up from a phone at <b id="ownUrl">&hellip;</b>
+    Set this up from a phone
+    <b id="ownUrl">&hellip;</b>
   </div>
 </header>
 
 <nav class="steps">
-  <span data-step="0">1 &middot; Machine</span>
-  <span data-step="1">2 &middot; Port</span>
-  <span data-step="2">3 &middot; Folder</span>
-  <span data-step="3">4 &middot; Check</span>
+  <span data-step="0" data-n="1">Machine</span>
+  <span data-step="1" data-n="2">Port</span>
+  <span data-step="2" data-n="3">Folder</span>
+  <span data-step="3" data-n="4">Check</span>
 </nav>
 
 <main>
@@ -42,6 +69,7 @@
     <p class="hint">8888 is the usual one for Web Station. Enter to continue.</p>
     <input id="portInput" class="focusable big" type="text" inputmode="numeric"
            autocomplete="off" spellcheck="false">
+    <span class="chips-label">Common ports</span>
     <div class="chips" id="portChips"></div>
   </section>
 
@@ -50,12 +78,13 @@
     <p class="hint">The folder the controller page lives in. Enter to continue.</p>
     <input id="pathInput" class="focusable big" type="text"
            autocomplete="off" spellcheck="false">
+    <span class="chips-label">Common folders</span>
     <div class="chips" id="pathChips"></div>
   </section>
 
   <section class="step" data-step="3" hidden>
     <h1>Check this is right</h1>
-    <p class="hint">The player will load this page before saving it.</p>
+    <p class="hint">The player will load this page itself before saving it.</p>
     <p class="assembled" id="assembled"></p>
     <p class="result" id="result"></p>
     <div class="row">
@@ -68,7 +97,10 @@
 
 <footer>
   <span class="preview" id="preview"></span>
-  <span class="keys">Backspace goes back</span>
+  <span class="meta">
+    <span>Backspace goes back</span>
+    <span class="version" id="version"></span>
+  </span>
 </footer>
 
 <script src="/app.js"></script>
