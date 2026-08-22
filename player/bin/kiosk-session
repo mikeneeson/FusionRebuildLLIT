@@ -4,25 +4,17 @@
 # real display.
 set -uo pipefail
 
-CONF=/var/lib/luckylogic/player.conf
 PROFILE=/var/lib/luckylogic/chromium
 RUNDIR=/run/luckylogic
-
-conf_value() {
-  [[ -r "$CONF" ]] || return 0
-  sed -n "s/^$1=\"\?\([^\"]*\)\"\?[[:space:]]*$/\1/p" "$CONF" | tail -n 1
-}
 
 # Record which Wayland socket this session is on so luckylogic-shot and any
 # other tool can attach to it from outside without guessing.
 mkdir -p "$RUNDIR"
 printf '%s\n' "$WAYLAND_DISPLAY" > "$RUNDIR/wayland-display"
 
-# Live screen viewing, off unless explicitly turned on for a bench unit.
-if [[ "$(conf_value VNC)" == "on" ]]; then
-  echo "luckylogic: wayvnc listening on 5900"
-  wayvnc 0.0.0.0 5900 &
-fi
+# Live screen viewing is deliberately not started here. It runs as its own
+# service so it keeps running while this session restarts, which is when you
+# most want to be watching. See luckylogic-vnc.service.
 
 # Chromium keeps a record of the last session and will happily restore it over
 # the top of a URL that has just been changed. Deleting it every start means

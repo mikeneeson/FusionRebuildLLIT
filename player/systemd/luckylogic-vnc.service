@@ -1,0 +1,20 @@
+[Unit]
+Description=LuckyLogic Player live screen viewing
+# Deliberately not BindsTo or Requires on the kiosk. This has to keep running
+# while the kiosk restarts underneath it, because a kiosk that is restarting is
+# exactly what you want to be watching.
+After=luckylogic-kiosk.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=player
+Group=player
+ExecStart=/opt/luckylogic/bin/vnc-launch
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
