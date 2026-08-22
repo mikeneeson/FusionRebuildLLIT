@@ -1,0 +1,10 @@
+# Nightly kiosk restart (triggered by luckylogic-nightly.timer).
+# Clears any slow Chromium memory growth and re-runs the splash/reconnect
+# path, so the player starts each day from a known-good state.
+
+[Unit]
+Description=LuckyLogic nightly kiosk restart
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart luckylogic-kiosk.service

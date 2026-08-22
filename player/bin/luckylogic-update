@@ -1,0 +1,38 @@
+#!/bin/bash
+# Check central for a newer player build and install it if one exists.
+#
+# This only knows HOW to update. Deciding WHEN to update stays a human
+# decision for v1: run this by hand over SSH, or wire it to a timer later.
+set -euo pipefail
+
+CENTRAL_URL="https://central.luckylogic.com.au/player"
+VERSION_FILE="/var/lib/luckylogic/version"
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "error: run with sudo" >&2
+    exit 1
+fi
+
+current="none"
+[ -f "$VERSION_FILE" ] && current="$(cat "$VERSION_FILE")"
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+
+curl -fsSL "$CENTRAL_URL/install.sh" -o "$tmp"
+
+remote="$(grep -m1 '^VERSION=' "$tmp" | cut -d'"' -f2)"
+if [ -z "$remote" ] || [ "$remote" = "dev" ]; then
+    echo "error: could not read a release version from $CENTRAL_URL/install.sh" >&2
+    exit 1
+fi
+
+if [ "$remote" = "$current" ]; then
+    echo "Already up to date ($current)."
+    exit 0
+fi
+
+echo "Installed: $current"
+echo "Available: $remote"
+echo "Updating..."
+bash "$tmp"

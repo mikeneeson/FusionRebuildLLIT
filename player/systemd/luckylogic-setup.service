@@ -1,0 +1,20 @@
+# LuckyLogic Player setup and splash server.
+#
+# Always running. Serves the branded setup page when no controller URL is
+# configured, and a "connecting" splash that forwards the kiosk to the
+# controller once it is reachable. Also how the URL is changed later from
+# a phone: http://<player-ip>:8080/setup
+
+[Unit]
+Description=LuckyLogic Player setup server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+User=player
+ExecStart=/usr/bin/python3 /opt/luckylogic/setup/setup_server.py
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

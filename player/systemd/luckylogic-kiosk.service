@@ -1,0 +1,33 @@
+# LuckyLogic Player kiosk: cage compositor running a single Chromium window
+# on tty1 as the unprivileged 'player' user.
+#
+# Hard-learned: do NOT add TTYReset=, TTYVHangup= or TTYVTDisallocate= here.
+# They cause a restart loop with cage. install.sh disables and masks
+# getty@tty1 instead, so nothing else fights over the console.
+
+[Unit]
+Description=LuckyLogic Player kiosk (cage + Chromium)
+Wants=luckylogic-setup.service
+After=luckylogic-setup.service systemd-user-sessions.service getty@tty1.service
+Conflicts=getty@tty1.service
+# Never give up restarting, no matter how fast it fails.
+StartLimitIntervalSec=0
+
+[Service]
+User=player
+# PAMName=login gives the service a real logind session on seat0, which is
+# what lets cage open the GPU and input devices without running as root,
+# and sets XDG_RUNTIME_DIR (where the Wayland socket lives).
+PAMName=login
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+UtmpIdentifier=tty1
+UtmpMode=user
+ExecStart=/opt/luckylogic/bin/kiosk-launch.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

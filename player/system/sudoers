@@ -1,0 +1,5 @@
+# Installed to /etc/sudoers.d/luckylogic (mode 440).
+# The setup server runs as the unprivileged 'player' user but needs to bounce
+# the kiosk after saving a new controller URL. This one exact command is the
+# only privilege the player user has.
+player ALL=(root) NOPASSWD: /usr/bin/systemctl restart luckylogic-kiosk.service
