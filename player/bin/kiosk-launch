@@ -1,0 +1,43 @@
+#!/bin/bash
+# Outer half of the kiosk. Runs as the player user from luckylogic-kiosk.service.
+#
+# Decides what the TV should show, then hands off to cage, which is the whole
+# graphics stack: no desktop, no window manager, no display manager. If anything
+# in here exits, systemd starts it again.
+set -uo pipefail
+
+CONF=/var/lib/luckylogic/player.conf
+STATE=/var/lib/luckylogic
+SHARE=/opt/luckylogic
+
+# Read one KEY="value" line out of the config. Parsed rather than sourced so a
+# stray character in a saved URL cannot run as a shell command.
+conf_value() {
+  [[ -r "$CONF" ]] || return 0
+  sed -n "s/^$1=\"\?\([^\"]*\)\"\?[[:space:]]*$/\1/p" "$CONF" | tail -n 1
+}
+
+URL="$(conf_value URL)"
+
+# The setup flag is how the recovery paths force a configured box back to the
+# setup screen without anyone having to edit the config.
+if [[ -e "$STATE/setup-requested" ]]; then
+  URL=""
+fi
+
+if [[ -z "$URL" ]]; then
+  # Nothing configured yet. Show the holding screen with this machine's own
+  # address on it, so it can be reached from a phone on the same network.
+  # The real setup screen replaces this target in the next step.
+  IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  sed "s|@IP@|${IP:-address unknown}|g" \
+    "$SHARE/setup/static/holding.html" > "$STATE/holding.html"
+  URL="file://$STATE/holding.html"
+fi
+
+echo "luckylogic: starting kiosk on $URL"
+export LUCKYLOGIC_URL="$URL"
+
+# -s allows Ctrl+Alt+F2 style VT switching, which is the difference between a
+# debuggable box and one that needs a reinstall.
+exec cage -s -- "$SHARE/bin/kiosk-session"

@@ -1,0 +1,27 @@
+{
+  "_comment": "Managed policy for the kiosk. Installed to /etc/chromium/policies/managed/. Together with the 'First Run' marker file in the player profile this stops the terms-of-service dialog that otherwise sits in front of the page on a fresh box.",
+
+  "PromotionalTabsEnabled": false,
+  "MetricsReportingEnabled": false,
+  "BrowserSignin": 0,
+  "SyncDisabled": true,
+  "DefaultBrowserSettingEnabled": false,
+  "PasswordManagerEnabled": false,
+  "AutofillAddressEnabled": false,
+  "AutofillCreditCardEnabled": false,
+  "TranslateEnabled": false,
+  "SearchSuggestEnabled": false,
+  "ShoppingListEnabled": false,
+  "BrowserLabsEnabled": false,
+
+  "_comment_updates": "Nothing on this box should ever phone home or restart itself for an update.",
+  "ComponentUpdatesEnabled": false,
+  "DefaultNotificationsSetting": 2,
+  "DefaultPopupsSetting": 2,
+
+  "_comment_autoplay": "The controller page starts video on its own with no click, so autoplay has to be allowed outright.",
+  "AutoplayAllowed": true,
+
+  "_comment_restore": "5 is 'open the new tab page'. This kills 'continue where you left off', so a URL from a previous config can never come back after the URL is changed.",
+  "RestoreOnStartup": 5
+}

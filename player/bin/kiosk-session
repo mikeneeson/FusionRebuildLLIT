@@ -1,0 +1,85 @@
+#!/bin/bash
+# Inner half of the kiosk, started by cage. Everything here runs inside the
+# Wayland session, which is why wayvnc and the screenshot tool can see the
+# real display.
+set -uo pipefail
+
+CONF=/var/lib/luckylogic/player.conf
+PROFILE=/var/lib/luckylogic/chromium
+RUNDIR=/run/luckylogic
+
+conf_value() {
+  [[ -r "$CONF" ]] || return 0
+  sed -n "s/^$1=\"\?\([^\"]*\)\"\?[[:space:]]*$/\1/p" "$CONF" | tail -n 1
+}
+
+# Record which Wayland socket this session is on so luckylogic-shot and any
+# other tool can attach to it from outside without guessing.
+mkdir -p "$RUNDIR"
+printf '%s\n' "$WAYLAND_DISPLAY" > "$RUNDIR/wayland-display"
+
+# Live screen viewing, off unless explicitly turned on for a bench unit.
+if [[ "$(conf_value VNC)" == "on" ]]; then
+  echo "luckylogic: wayvnc listening on 5900"
+  wayvnc 0.0.0.0 5900 &
+fi
+
+# Chromium keeps a record of the last session and will happily restore it over
+# the top of a URL that has just been changed. Deleting it every start means
+# the command line below is always the last word on what gets displayed.
+rm -rf "$PROFILE/Default/Sessions" "$PROFILE/Default/Session Storage"
+mkdir -p "$PROFILE/Default"
+# Presence of this file is what tells Chromium it is not a fresh install, which
+# is half of what suppresses the first-run terms dialog. The policy file is the
+# other half.
+touch "$PROFILE/First Run"
+
+chromium \
+  --user-data-dir="$PROFILE" \
+  --ozone-platform=wayland \
+  --kiosk \
+  --start-fullscreen \
+  --no-first-run \
+  --no-default-browser-check \
+  --noerrdialogs \
+  --disable-infobars \
+  --disable-session-crashed-bubble \
+  --hide-crash-restore-bubble \
+  --disable-features=Translate,TranslateUI,InfiniteSessionRestore,MediaRouter \
+  --disable-component-update \
+  --check-for-update-interval=31536000 \
+  --password-store=basic \
+  --autoplay-policy=no-user-gesture-required \
+  --enable-features=VaapiVideoDecoder,VaapiVideoDecodeLinuxGL \
+  --ignore-gpu-blocklist \
+  --enable-gpu-rasterization \
+  --disable-pinch \
+  --overscroll-history-navigation=0 \
+  "$LUCKYLOGIC_URL" &
+CHROMIUM_PID=$!
+
+# After a power cut the TV box is usually up well before the NAS, so the first
+# load fails and Chromium sits on a connection error until someone visits the
+# studio. Watch the page, and the moment it goes from unreachable to reachable,
+# drop out so systemd starts the whole session again on a working page.
+if [[ "$LUCKYLOGIC_URL" == http* ]]; then
+  (
+    was_down=0
+    while kill -0 "$CHROMIUM_PID" 2>/dev/null; do
+      sleep 15
+      if curl -fsS --max-time 10 -o /dev/null "$LUCKYLOGIC_URL"; then
+        if (( was_down )); then
+          echo "luckylogic: page is answering again, reloading it"
+          kill "$CHROMIUM_PID"
+          break
+        fi
+      else
+        was_down=1
+      fi
+    done
+  ) &
+fi
+
+# When Chromium exits, for any reason, so does this script, and systemd brings
+# the lot back three seconds later.
+wait "$CHROMIUM_PID"

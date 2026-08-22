@@ -1,0 +1,27 @@
+#!/bin/bash
+# Pull the latest code and reinstall it.
+#
+#   sudo luckylogic-update
+#
+# The saved URL and the VNC setting are left alone. If the box cannot reach
+# GitHub, which is normal for a private repo on a studio network, this says so
+# and installs whatever is already in the source directory.
+set -euo pipefail
+
+[[ $EUID -eq 0 ]] || { echo "Run this with sudo." >&2; exit 1; }
+
+SRC_FILE=/etc/luckylogic/install-source
+[[ -r "$SRC_FILE" ]] || { echo "No install source recorded. Re-run install.sh from a copy of the repo." >&2; exit 1; }
+SRC="$(cat "$SRC_FILE")"
+[[ -d "$SRC" ]] || { echo "Source directory $SRC is gone. Copy the repo back and run install.sh from it." >&2; exit 1; }
+
+if [[ -d "$SRC/.git" ]]; then
+  echo "Fetching latest code into $SRC"
+  if ! git -C "$SRC" pull --ff-only; then
+    echo "Could not pull from GitHub. Installing the copy already on disk instead."
+  fi
+else
+  echo "$SRC is not a git checkout. Installing the copy already on disk."
+fi
+
+"$SRC/install.sh"
