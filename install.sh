@@ -27,6 +27,7 @@ die()  { echo -e "\e[31merror:\e[0m $*" >&2; exit 1; }
 [ "$(uname -m)" = "x86_64" ] || die "this player targets x86_64 mini PCs"
 
 if [ -r /etc/os-release ]; then
+    # shellcheck source=/dev/null
     . /etc/os-release
 else
     die "cannot read /etc/os-release"
@@ -45,9 +46,11 @@ cleanup() { [ -n "$TMP" ] && rm -rf "$TMP"; }
 trap cleanup EXIT
 
 if [ "$VERSION" = "dev" ]; then
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-.}")" 2>/dev/null && pwd || true)"
-    [ -n "$SCRIPT_DIR" ] && [ -d "$SCRIPT_DIR/player" ] \
-        || die "dev install needs a repo checkout next to this script. For real installs use the released install.sh from central."
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-.}")" 2>/dev/null && pwd)" \
+        || SCRIPT_DIR=""
+    if [ -z "$SCRIPT_DIR" ] || [ ! -d "$SCRIPT_DIR/player" ]; then
+        die "dev install needs a repo checkout next to this script. For real installs use the released install.sh from central."
+    fi
     PAYLOAD="$SCRIPT_DIR/player"
     say "Installing from working tree: $PAYLOAD"
 else
