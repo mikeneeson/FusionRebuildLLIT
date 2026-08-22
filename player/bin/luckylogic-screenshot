@@ -19,7 +19,8 @@ if [ "$(id -un)" != "player" ]; then
     exit 1
 fi
 
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+uid="$(id -u)"
+export XDG_RUNTIME_DIR="/run/user/$uid"
 
 sock=""
 for s in "$XDG_RUNTIME_DIR"/wayland-*; do

@@ -83,6 +83,30 @@ stamp against `/var/lib/luckylogic/version`, and installs only if newer.
 Deciding *when* to update is deliberately manual in v1; wire
 `luckylogic-update` to a systemd timer if that ever changes.
 
+## Resetting a bench machine
+
+`tools/reset-bench.sh` reverts a test box to a clean base between install
+runs, over SSH, without losing SSH:
+
+```
+sudo ./tools/reset-bench.sh --dry-run      # print the plan, change nothing
+sudo ./tools/reset-bench.sh                # full reset, asks before purging
+sudo ./tools/reset-bench.sh --player-only  # only undo install.sh
+```
+
+It removes the services, files, `player` user and packages the installer
+added, plus the usual leftovers from earlier kiosk experiments (X, display
+managers, other compositors), and clears the journal so the next test starts
+with clean logs.
+
+It refuses to run if `openssh-server` is missing or not running, protects
+networking, sudo and your own account from the autoremove, and re-enables
+the `getty@tty1` console login that the installer masks, so a broken SSH
+setup cannot lock you out. It disarms the hardware watchdog before touching
+packages, so a slow apt transaction cannot trip a 30 second reset.
+
+This is a revert, not a reimage. For a truly pristine Debian, reinstall.
+
 ## Cutting a release
 
 The repo is private and players never hold GitHub credentials, so
@@ -106,6 +130,7 @@ tree directly (VERSION=dev), skipping the download.
 ```
 install.sh                     installer/updater (dev mode from checkout)
 release.sh                     packages dist/ for upload to central
+tools/reset-bench.sh           reverts a test box to a clean base
 player/
   bin/kiosk-launch.sh          cage + Chromium launch, crash-restore guard
   bin/luckylogic-screenshot    live screen to PNG

@@ -18,7 +18,10 @@ VER="${1:-}"
     || { echo "usage: ./release.sh <version, e.g. 1.0.0>" >&2; exit 1; }
 
 cd "$(dirname "$0")"
-[ -d player ] && [ -f install.sh ] || { echo "run from the repo root" >&2; exit 1; }
+if [ ! -d player ] || [ ! -f install.sh ]; then
+    echo "run from the repo root" >&2
+    exit 1
+fi
 
 if ! git diff --quiet HEAD -- player install.sh 2>/dev/null; then
     echo "warning: uncommitted changes in player/ or install.sh are going into this release" >&2
