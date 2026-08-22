@@ -60,17 +60,46 @@ page often fails. The player watches for this: as soon as the page starts
 answering, it reloads itself onto it, rather than sitting on a connection error
 until someone visits the studio.
 
+## The setup screen
+
+When a player has no URL saved it shows the setup screen on the TV. It is also
+served all the time at `http://<player-ip>:7777`, so a player can be pointed
+somewhere new from a phone without anyone visiting the studio.
+
+It builds the URL in three steps rather than asking anyone to type a long
+address on a TV remote:
+
+1. **Machine.** The player scans its own subnet and lists what it finds, with
+   the Synology sorted to the top and labelled. Arrow keys to move, Enter to
+   choose. There is a box to type an address into as well, and a scan again
+   button. On a normal studio network the whole step is one press of Enter.
+2. **Port.** Prefilled with 8888, with 80, 5000 and 5001 one press away.
+3. **Folder.** Prefilled with `control`.
+
+It shows the assembled URL back as you go. Before saving, the player itself
+loads the page to prove it works, and reports the page title so you can see it
+is the right one. A URL that does not answer is never saved, and the message
+says what is actually wrong: wrong port, wrong folder, or nothing there at all.
+
+Note the player does the checking, not the browser, because whoever is setting
+it up may be on a phone that cannot reach the NAS even though the player can.
+
+Once saved, the TV moves to the page on its own. If you saved it from a phone,
+the TV follows within a couple of seconds.
+
 ## Changing the URL later
 
-Not built yet. This is the next piece of work. Until then, a configured player
-can be sent back to the setup screen with:
+From any machine on the same network, open `http://<player-ip>:7777` and set it
+again. That works whether or not a URL is already saved.
+
+To force the TV itself back to the setup screen:
 
     sudo touch /var/lib/luckylogic/setup-requested
     sudo systemctl restart luckylogic-kiosk
 
-Two ways back into setup are planned, so nobody needs a keyboard at a studio:
-a key sequence on the air remote, and powering the box off and on three times
-in a row for when it is frozen and the remote does nothing.
+Two ways to do that with no keyboard are still to come: a key sequence on the
+air remote, and powering the box off and on three times in a row for when it is
+frozen and the remote does nothing.
 
 ## Watching a player
 
@@ -106,9 +135,11 @@ anyone on that network.
     player/bin/luckylogic-vnc      turn live screen viewing on or off
     player/bin/vnc-launch          the live view service itself
     player/bin/luckylogic-update   pull latest code and reinstall
+    player/setup/server.py         the setup screen, on port 7777
     player/setup/scan.py           finds the NAS on the local network
+    player/setup/static/           the setup page itself
     player/chromium/policies.json  Chromium managed policy
-    player/systemd/               the kiosk and live view services
+    player/systemd/               kiosk, setup and live view services
     player/config/                default config
 
 ## Hardware

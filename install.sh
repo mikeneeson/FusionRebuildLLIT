@@ -103,11 +103,14 @@ systemctl mask getty@tty1.service >/dev/null 2>&1 || true
 
 
 say "Installing the services"
-for unit in luckylogic-kiosk luckylogic-vnc; do
+for unit in luckylogic-kiosk luckylogic-setup luckylogic-vnc; do
   install -m 644 "$SRC/player/systemd/$unit.service" "/etc/systemd/system/$unit.service"
 done
 systemctl daemon-reload
 systemctl enable luckylogic-kiosk.service >/dev/null
+# The setup screen runs all the time, not just on first boot, so a player can
+# be pointed somewhere new from a phone without a site visit.
+systemctl enable luckylogic-setup.service >/dev/null
 # Live view runs all the time but sits idle unless VNC="on" in the config, so
 # turning it on later never needs a service restart or a reboot.
 systemctl enable luckylogic-vnc.service >/dev/null
@@ -122,6 +125,7 @@ printf '%s\n' "$SRC" > "$ETC/install-source"
 
 
 say "Starting the kiosk"
+systemctl restart luckylogic-setup.service
 systemctl restart luckylogic-kiosk.service
 systemctl restart luckylogic-vnc.service
 
@@ -131,6 +135,7 @@ LuckyLogic Player is installed.
 
   What is on the TV now   $(grep -q '^URL=""' "$STATE/player.conf" && echo "the setup holding screen" || echo "the saved page")
   This machine            $(hostname -I | awk '{print $1}')
+  Set the page from here  http://$(hostname -I | awk '{print $1}'):7777
   Config                  $STATE/player.conf
   Check it is running     systemctl status luckylogic-kiosk
   Watch what it is doing  journalctl -u luckylogic-kiosk -f

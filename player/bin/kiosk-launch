@@ -26,9 +26,22 @@ if [[ -e "$STATE/setup-requested" ]]; then
 fi
 
 if [[ -z "$URL" ]]; then
-  # Nothing configured yet. Show the holding screen with this machine's own
-  # address on it, so it can be reached from a phone on the same network.
-  # The real setup screen replaces this target in the next step.
+  # Nothing configured yet, so show the setup screen. It is served locally by
+  # luckylogic-setup.service, which starts at the same time as this does, so
+  # give it a moment to come up before deciding it is broken.
+  SETUP_URL="http://127.0.0.1:7777/"
+  for _ in $(seq 1 15); do
+    if curl -fsS --max-time 2 -o /dev/null "${SETUP_URL}api/state"; then
+      URL="$SETUP_URL"
+      break
+    fi
+    sleep 1
+  done
+fi
+
+if [[ -z "$URL" ]]; then
+  # The setup service is not answering. Put something readable on the TV with
+  # this machine's address on it rather than leaving a black screen.
   IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
   sed "s|@IP@|${IP:-address unknown}|g" \
     "$SHARE/setup/static/holding.html" > "$STATE/holding.html"
